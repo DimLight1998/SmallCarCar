@@ -1,4 +1,4 @@
-// $Id: BlinkToRadioC.nc,v 1.6 2010-06-29 22:07:40 scipio Exp $
+// $Id: BlinkToRadioAppC.nc,v 1.5 2010-06-29 22:07:40 scipio Exp $
 
 /*
  * Copyright (c) 2000-2006 The Regents of the University  of California.  
@@ -34,7 +34,7 @@
  */
 
 /**
- * Implementation of the BlinkToRadio application.  A counter is
+ * Application file for the BlinkToRadio application.  A counter is
  * incremented and a radio message is sent whenever a timer fires.
  * Whenever a radio message is received, the three least significant
  * bits of the counter in the message payload are displayed on the
@@ -50,81 +50,23 @@
 #include <Timer.h>
 #include "BlinkToRadio.h"
 
-module BlinkToRadioC {
-  uses interface Boot;
-  uses interface Leds;
-  uses interface Timer<TMilli> as Timer0;
-  uses interface Packet;
-  uses interface AMPacket;
-  uses interface AMSend;
-  uses interface Receive;
-  uses interface SplitControl as AMControl;
+configuration BlinkToRadioAppC {
 }
 implementation {
+  components MainC;
+  components LedsC;
+  components BlinkToRadioC as App;
+  components new TimerMilliC() as Timer0;
+  components ActiveMessageC;
+  components new AMSenderC(AM_BLINKTORADIO);
+  components new AMReceiverC(AM_BLINKTORADIO);
 
-  uint16_t counter;
-  message_t pkt;
-  bool busy = FALSE;
-
-  void setLeds(uint16_t val) {
-    if (val & 0x01)
-      call Leds.led0On();
-    else 
-      call Leds.led0Off();
-    if (val & 0x02)
-      call Leds.led1On();
-    else
-      call Leds.led1Off();
-    if (val & 0x04)
-      call Leds.led2On();
-    else
-      call Leds.led2Off();
-  }
-
-  event void Boot.booted() {
-    call AMControl.start();
-  }
-
-  event void AMControl.startDone(error_t err) {
-    if (err == SUCCESS) {
-      call Timer0.startPeriodic(TIMER_PERIOD_MILLI);
-    }
-    else {
-      call AMControl.start();
-    }
-  }
-
-  event void AMControl.stopDone(error_t err) {
-  }
-
-  event void Timer0.fired() {
-    counter++;
-    if (!busy) {
-      BlinkToRadioMsg* btrpkt = 
-	(BlinkToRadioMsg*)(call Packet.getPayload(&pkt, sizeof(BlinkToRadioMsg)));
-      if (btrpkt == NULL) {
-	return;
-      }
-      btrpkt->nodeid = TOS_NODE_ID;
-      btrpkt->counter = counter;
-      if (call AMSend.send(AM_BROADCAST_ADDR, 
-          &pkt, sizeof(BlinkToRadioMsg)) == SUCCESS) {
-        busy = TRUE;
-      }
-    }
-  }
-
-  event void AMSend.sendDone(message_t* msg, error_t err) {
-    if (&pkt == msg) {
-      busy = FALSE;
-    }
-  }
-
-  event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
-    if (len == sizeof(BlinkToRadioMsg)) {
-      BlinkToRadioMsg* btrpkt = (BlinkToRadioMsg*)payload;
-      setLeds(btrpkt->counter);
-    }
-    return msg;
-  }
+  App.Boot -> MainC;
+  App.Leds -> LedsC;
+  App.Timer0 -> Timer0;
+  App.Packet -> AMSenderC;
+  App.AMPacket -> AMSenderC;
+  App.AMControl -> ActiveMessageC;
+  App.AMSend -> AMSenderC;
+  App.Receive -> AMReceiverC;
 }
