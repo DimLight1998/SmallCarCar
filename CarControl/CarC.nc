@@ -137,10 +137,10 @@ implementation
         HplMsp430Usart.enableUart();
 
         int i = 0;
-        for(i = 0; i < 8; i++)
+        for (i = 0; i < 8; i++)
         {
             HplMsp430Usart.tx(newestCommand[i]);
-            while(!HplMsp430Usart.isTxEmpty())
+            while (!HplMsp430Usart.isTxEmpty())
             {
             }
         }
