@@ -1,16 +1,16 @@
 configuration CarAppC
 {
+    provides interface Car;
 }
 
 implementation
 {
     components CarC;
-    components HplMsp430UsartOC;
-    components Msp430UartOC;
-    components HplMsp430GeneralIOC;
+    components HplMsp430Usart0C;
+    components Msp430Uart0C;
 
-    CarC.HplMsp430Usart -> HplMsp430UsartOC;
-    CarC.HplMsp430UsartInterrupts -> HplMsp430UsartOC;
-    CarC.Resource -> Msp430UartOC;
-    CarC.HplMsp430GeneralIO -> HplMsp430GeneralIOC;
+    Car = CarC.Car;
+
+    CarC.HplMsp430Usart -> HplMsp430Usart0C.HplMsp430Usart;
+    CarC.Resource -> Msp430UartOC.Resource;
 }

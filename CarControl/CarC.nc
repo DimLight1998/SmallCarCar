@@ -1,10 +1,8 @@
 module CarC @safe()
 {
-    uses interface Car;
+    provides interface Car;
     uses interface HplMsp430Usart;
-    uses interface HplMsp430UsartInterrupts;
     uses interface Resource;
-    uses interface HplMsp430GeneralIO;
 }
 
 implementation
@@ -35,116 +33,82 @@ implementation
             urxe: 1
         }
     };
+    bool isSending = false;
 
-    command error_t Car.Angle(uint16_t value)
+    command error_t Car.Angle1(uint16_t value)
     {
-
+        return SendBytes(0x01, value >> 8, value & 0xff);
     }
 
-    command error_t Car.Angle_Senc(uint16_t value)
+    command error_t Car.Angle2(uint16_t value)
     {
-
+        return SendBytes(0x07, value >> 8, value & 0xff);
     }
 
-    command error_t Car.Angle_Third(uint16_t value)
+    command error_t Car.Angle3(uint16_t value)
     {
-
+        return SendBytes(0x08, value >> 8, value & 0xff);
     }
 
     command error_t Car.Forward(uint16_t value)
     {
-        newestCommand[2] = 0x02;
-        newestCommand[3] = 0x02;
-        newestCommand[4] = 0x00;
-        call Resource.request();
-        return SUCCESS;
+        return SendBytes(0x02, value >> 8, value & 0xff);
     }
 
     command error_t Car.Back(uint16_t value)
     {
-        newestCommand[2] = 0x03;
-        newestCommand[3] = 0x02;
-        newestCommand[4] = 0x00;
-        call Resource.request();
-        return SUCCESS;
+        return SendBytes(0x03, value >> 8, value & 0xff);
     }
 
     command error_t Car.Left(uint16_t value)
     {
-        newestCommand[2] = 0x04;
-        newestCommand[3] = 0x02;
-        newestCommand[4] = 0x00;
-        call Resource.request();
-        return SUCCESS;
+        return SendBytes(0x04, value >> 8, value & 0xff);
     }
 
     command error_t Car.Right(uint16_t value)
     {
-        newestCommand[2] = 0x05;
-        newestCommand[3] = 0x02;
-        newestCommand[4] = 0x00;
-        call Resource.request();
-        return SUCCESS;
+        return SendBytes(0x05, value >> 8, value & 0xff);
     }
 
-    command error_t Car.QuiryReader(uint16_t value)
+    command error_t Car.Pause()
     {
-
-    }
-
-    command error_t Car.Pause(uint16_t value)
-    {
-        newestCommand[2] = 0x06;
-        newestCommand[3] = 0x00;
-        newestCommand[4] = 0x00;
-        call Resource.request();
-        return SUCCESS;
-    }
-
-    command error_t Car.InitMaxSpeed(uint16_t value)
-    {
-
-    }
-
-    command error_t Car.InitMinSpeed(uint16_t value)
-    {
-
-    }
-
-    command error_t Car.InitLeftServo(uint16_t value)
-    {
-
-    }
-
-    command error_t Car.InitRightServo(uint16_t value)
-    {
-
-    }
-
-    command error_t Car.InitMiddleServo(uint16_t value)
-    {
-
-    }
-    
-    event void Car.readDone(error_t state, uint16_t data)
-    {
-
+        return SendBytes(0x06, 0x00, 0x00);
     }
 
     event void Resource.granted()
     {
         HplMsp430Usart.setModeUart(&config);
         HplMsp430Usart.enableUart();
+        U0CTL &= ~SYNC;
 
         int i = 0;
         for (i = 0; i < 8; i++)
         {
+            while (!(call HplMsp430Usart.isTxEmpty())) {}
             HplMsp430Usart.tx(newestCommand[i]);
-            while (!HplMsp430Usart.isTxEmpty())
-            {
-            }
+            while (!(call HplMsp430Usart.isTxEmpty())) {}
         }
 
         Resource.release();
+        isSending = false;
+        signal Car.SendDone();
+    }
+
+    error_t SendBytes(uint8_t byte2, uint8_t byte3, uint8_t byte4)
+    {
+        if (isSending)
+        {
+            // return in advance to avoid newestCommand be modified
+            return EBUSY;
+        }
+        else
+        {
+            isSending = true;
+        }
+
+        newestCommand[2] = byte2;
+        newestCommand[3] = byte3;
+        newestCommand[4] = byte4;
+        return call Resource.request();
     }
 }
