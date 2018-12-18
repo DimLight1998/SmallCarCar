@@ -4,9 +4,6 @@
 module BlinkToRadioC
 {
     uses interface Boot;
-    uses interface Packet;
-    uses interface AMPacket;
-    uses interface AMSend;
     uses interface Receive;
     uses interface SplitControl as AMControl;
     uses interface Car;
@@ -125,7 +122,4 @@ implementation
  event void AMControl.stopDone(error_t err){
      // nothing
  }
-
- event void AMSend.sendDone(message_t * msg, error_t err)
- {}
 }
