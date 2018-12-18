@@ -1,4 +1,4 @@
-#include "BlinkToRadio.h"
+#include "../common.h"
 #include <Timer.h>
 
 configuration BlinkToRadioAppC

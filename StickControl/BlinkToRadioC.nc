@@ -75,40 +75,40 @@ implementation
         ssMsg->ButtonEDown = buttonEDown;
         ssMsg->ButtonFDown = buttonFDown;
 
-        call AMSend.send(AM_BROADCAST_ADDR, ssMsg, sizeof(StickStatusMsg));
+        call AMSend.send(AM_BROADCAST_ADDR, &pkt, sizeof(StickStatusMsg));
     }
 
-    event void getButtonADone(bool High)
+    event void Button.getButtonADone(bool High)
     {
         buttonADown = High ? 1 : 0;
         call Button.getButtonB();
     }
 
-    event void getButtonBDone(bool High)
+    event void Button.getButtonBDone(bool High)
     {
         buttonBDown = High ? 1 : 0;
         call Button.getButtonC();
     }
 
-    event void getButtonCDone(bool High)
+    event void Button.getButtonCDone(bool High)
     {
         buttonCDown = High ? 1 : 0;
         call Button.getButtonD();
     }
 
-    event void getButtonDDone(bool High)
+    event void Button.getButtonDDone(bool High)
     {
         buttonDDown = High ? 1 : 0;
         call Button.getButtonE();
     }
 
-    event void getButtonEDone(bool High)
+    event void Button.getButtonEDone(bool High)
     {
         buttonEDown = High ? 1 : 0;
         call Button.getButtonF();
     }
 
-    event void getButtonFDone(bool High)
+    event void Button.getButtonFDone(bool High)
     {
         buttonFDown = High ? 1 : 0;
         call ReadStickX.read();
@@ -129,9 +129,17 @@ implementation
         if (err == SUCCESS) {
             joyStickY = val;
 
-            call SendMessage();
+            SendMessage();
         } else {
             call ReadStickX.read();
         }
+    }
+
+    event void AMControl.stopDone(error_t err) {
+     // nothing
+    }
+
+    event void Button.have_begun() {
+        // nothing
     }
 }

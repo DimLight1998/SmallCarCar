@@ -1,40 +1,20 @@
-module StickC
+#include <Msp430Adc12.h>
+
+configuration StickC
 {
-    provides interface AdcConfigure<const msp430adc12_channel_config_t*> as ConfigureX;
-    provides interface AdcConfigure<const msp430adc12_channel_config_t*> as ConfigureY;
+    provides interface Read<uint16_t> as ReadStickX;
+    provides interface Read<uint16_t> as ReadStickY;
 }
 
 implementation
 {
-    const msp430adc12_channel_config_t configx = {
-        inch : INPUT_CHANNEL_A6,
-        sref : REFERENCE_VREFplus_AVss,
-        ref2_5v : REFVOLT_LEVEL_2_5,
-        adc12ssel : SHT_SOURCE_ACLK,
-        adc12div : SHT_CLOCK_DIV_1,
-        sht : SAMPLE_HOLD_4_CYCLES,
-        sampcon_ssel : SAMPCON_SOURCE_SMCLK,
-        sampcon_id : SAMPCON_CLOCK_DIV_1
-    };
+    components StickConfigC;
+    components new AdcReadClientC() as ClientX;
+    components new AdcReadClientC() as ClientY;
 
-    const msp430adc12_channel_config_t configy = {
-        inch : INPUT_CHANNEL_A7,
-        sref : REFERENCE_VREFplus_AVss,
-        ref2_5v : REFVOLT_LEVEL_2_5,
-        adc12ssel : SHT_SOURCE_ACLK,
-        adc12div : SHT_CLOCK_DIV_1,
-        sht : SAMPLE_HOLD_4_CYCLES,
-        sampcon_ssel : SAMPCON_SOURCE_SMCLK,
-        sampcon_id : SAMPCON_CLOCK_DIV_1
-    };
+    ReadStickX = ClientX.Read;
+    ReadStickY = ClientY.Read;
 
-    async command const msp430adc12_channel_config_t* ConfigureX.getConfiguration()
-    {
-        return &configx;
-    }
-
-    async command const msp430adc12_channel_config_t* ConfigureY.getConfiguration()
-    {
-        return &configy;
-    }
+    ClientX.AdcConfigure->StickConfigC.ConfigureX;
+    ClientY.AdcConfigure->StickConfigC.ConfigureY;
 }
