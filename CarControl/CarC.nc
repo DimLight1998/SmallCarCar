@@ -5,12 +5,12 @@ configuration CarC
 
 implementation
 {
-    components CarP;
+    components CarImpl;
     components HplMsp430Usart0C;
     components new Msp430Uart0C();
 
-    Car = CarP.Car;
+    Car = CarImpl.Car;
 
-    CarP.HplMsp430Usart->HplMsp430Usart0C.HplMsp430Usart;
-    CarP.Resource->Msp430Uart0C.Resource;
+    CarImpl.HplMsp430Usart->HplMsp430Usart0C.HplMsp430Usart;
+    CarImpl.Resource->Msp430Uart0C.Resource;
 }

@@ -1,4 +1,4 @@
-module CarP @safe()
+module CarImpl @safe()
 {
     provides interface Car;
     uses interface HplMsp430Usart;
