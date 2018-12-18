@@ -4,7 +4,7 @@
 enum
 {
     AM_BLINKTORADIO = 6,
-    TIMER_RERIOD_MILLI = 100,
+    TIMER_PERIOD_MILLI = 100,
 
     STICK_STOP_THRES = 0, // TODO
 
