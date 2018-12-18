@@ -1,6 +1,15 @@
 #ifndef SMALLCARCAR_COMMON_H
 #define SMALLCARCAR_COMMON_H
 
+enum
+{
+    AM_BLINKTORADIO = 6,
+    TIMER_RERIOD_MILLI = 100,
+
+    STICK_STOP_THRES = 0, // TODO
+
+};
+
 typedef nx_struct StickStatusMsg {
     nx_uint8_t JoyStickX;
     nx_uint8_t JoyStickY;
