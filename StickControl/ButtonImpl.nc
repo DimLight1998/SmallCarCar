@@ -1,4 +1,4 @@
-module ButtonP
+module ButtonImpl
 {
     provides interface Button;
 

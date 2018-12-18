@@ -5,15 +5,15 @@ configuration ButtonC
 
 implementation
 {
-    components ButtonP;
+    components ButtonImpl;
     components HplMsp430GeneralIOC as IOC;
 
-    ButtonP.ButtonA->IOC.Port60;
-    ButtonP.ButtonB->IOC.Port21;
-    ButtonP.ButtonC->IOC.Port61;
-    ButtonP.ButtonD->IOC.Port23;
-    ButtonP.ButtonE->IOC.Port62;
-    ButtonP.ButtonF->IOC.Port26;
+    ButtonImpl.ButtonA->IOC.Port60;
+    ButtonImpl.ButtonB->IOC.Port21;
+    ButtonImpl.ButtonC->IOC.Port61;
+    ButtonImpl.ButtonD->IOC.Port23;
+    ButtonImpl.ButtonE->IOC.Port62;
+    ButtonImpl.ButtonF->IOC.Port26;
 
-    Button = ButtonP;
+    Button = ButtonImpl;
 }
