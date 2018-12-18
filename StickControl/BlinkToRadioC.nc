@@ -1,5 +1,5 @@
-#include <Timer.h>
 #include "../common.h"
+#include <Timer.h>
 
 module BlinkToRadioC
 {
@@ -19,7 +19,7 @@ implementation
 {
     message_t pkt;
     bool busy = FALSE;
-    StickStatusMsg *ssMsg = NULL;
+    StickStatusMsg* ssMsg = NULL;
 
     nx_uint8_t joyStickX;
     nx_uint8_t joyStickY;
@@ -37,23 +37,18 @@ implementation
 
     event void AMControl.startDone(error_t err)
     {
-        if (err == SUCCESS)
-        {
+        if (err == SUCCESS) {
             call Timer0.startPeriodic(TIMER_PERIOD_MILLI);
-        }
-        else
-        {
+        } else {
             call AMControl.start();
         }
     }
 
     event void Timer0.fired()
     {
-        if (!busy)
-        {
-            ssMsg = (StickStatusMsg *)(call Packet.getPayload(&pkt, sizeof(StickStatusMsg)));
-            if (ssMsg == NULL)
-            {
+        if (!busy) {
+            ssMsg = (StickStatusMsg*)(call Packet.getPayload(&pkt, sizeof(StickStatusMsg)));
+            if (ssMsg == NULL) {
                 return;
             }
 
@@ -64,22 +59,21 @@ implementation
 
     event void AMSend.sendDone(message_t * msg, error_t err)
     {
-        if (&pkt == msg)
-        {
+        if (&pkt == msg) {
             busy = FALSE;
         }
     }
 
     void SendMessage()
     {
-        ssMsg -> JoyStickX = joyStickX;
-        ssMsg -> JoyStickY = joyStickY;
-        ssMsg -> ButtonADown = buttonADown;
-        ssMsg -> ButtonBDown = buttonBDown;
-        ssMsg -> ButtonCDown = buttonCDown;
-        ssMsg -> ButtonDDown = buttonDDown;
-        ssMsg -> ButtonEDown = buttonEDown;
-        ssMsg -> ButtonFDown = buttonFDown;
+        ssMsg->JoyStickX = joyStickX;
+        ssMsg->JoyStickY = joyStickY;
+        ssMsg->ButtonADown = buttonADown;
+        ssMsg->ButtonBDown = buttonBDown;
+        ssMsg->ButtonCDown = buttonCDown;
+        ssMsg->ButtonDDown = buttonDDown;
+        ssMsg->ButtonEDown = buttonEDown;
+        ssMsg->ButtonFDown = buttonFDown;
 
         call AMSend.send(AM_BROADCAST_ADDR, ssMsg, sizeof(StickStatusMsg));
     }
@@ -122,27 +116,21 @@ implementation
 
     event void ReadStickX.readDone(error_t err, uint16_t val)
     {
-        if (err == SUCCESS)
-        {
+        if (err == SUCCESS) {
             joyStickX = val;
             call ReadStickY.read();
-        }
-        else
-        {
+        } else {
             call ReadStickX.read();
         }
     }
 
     event void ReadStickY.readDone(error_t err, uint16_t val)
     {
-        if (err == SUCCESS)
-        {
+        if (err == SUCCESS) {
             joyStickY = val;
 
             call SendMessage();
-        }
-        else
-        {
+        } else {
             call ReadStickX.read();
         }
     }

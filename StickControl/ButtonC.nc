@@ -1,7 +1,7 @@
 module ButtonC
 {
     provides interface Button;
-    
+
     uses interface HplMsp430GeneralIO as ButtonA;
     uses interface HplMsp430GeneralIO as ButtonB;
     uses interface HplMsp430GeneralIO as ButtonC;
