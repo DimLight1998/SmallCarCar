@@ -16,6 +16,11 @@ implementation
     uint16_t Angle1 = 3400;
     uint16_t Angle2 = 3400;
     uint16_t Angle3 = 3400;
+
+    uint16_t InitAngle1 = 3400;
+    uint16_t InitAngle2 = 3400;
+    uint16_t InitAngle3 = 3400;
+
     uint16_t AngleDelta = 100;
 
     uint16_t AngleMax = 5000;
@@ -44,6 +49,16 @@ implementation
             nx_uint8_t buttonDDown = ssMsg->ButtonDDown;
             nx_uint8_t buttonEDown = ssMsg->ButtonEDown;
             nx_uint8_t buttonFDown = ssMsg->ButtonFDown;
+
+            // is this a reset command ?
+            if (buttonADown && buttonBDown && buttonCDown) {
+                Car.Pause();
+                Car.Angle1(InitAngle1);
+                Car.Angle2(InitAngle2);
+                Car.Angle3(InitAngle3);
+
+                return msg;
+            }
 
             // decode joyStick for movement status
             if (joyStickX > 0x600 && joyStickX < 0xA00 && joyStickY > 0x600 && joyStickY < 0x800) {
