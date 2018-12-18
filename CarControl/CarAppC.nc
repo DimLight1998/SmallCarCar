@@ -12,5 +12,5 @@ implementation
     Car = CarC.Car;
 
     CarC.HplMsp430Usart->HplMsp430Usart0C.HplMsp430Usart;
-    CarC.Resource->Msp430UartOC.Resource;
+    CarC.Resource->Msp430Uart0C.Resource;
 }

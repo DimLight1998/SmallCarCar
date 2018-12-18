@@ -33,7 +33,24 @@ implementation
             urxe : 1
         }
     };
-    bool isSending = false;
+    bool isSending = FALSE;
+    int i;
+
+    error_t SendBytes(uint8_t byte2, uint8_t byte3, uint8_t byte4)
+    {
+        if (isSending) {
+            // return in advance to avoid newestCommand be modified
+            return EBUSY;
+        } else {
+            isSending = TRUE;
+        }
+
+        newestCommand[2] = byte2;
+        newestCommand[3] = byte3;
+        newestCommand[4] = byte4;
+        call Resource.request();
+        return SUCCESS;
+    }
 
     command error_t Car.Angle1(uint16_t value)
     {
@@ -77,36 +94,20 @@ implementation
 
     event void Resource.granted()
     {
-        HplMsp430Usart.setModeUart(&config);
-        HplMsp430Usart.enableUart();
+        call HplMsp430Usart.setModeUart(&config);
+        call HplMsp430Usart.enableUart();
         U0CTL &= ~SYNC;
 
-        int i = 0;
         for (i = 0; i < 8; i++) {
             while (!(call HplMsp430Usart.isTxEmpty())) {
             }
-            HplMsp430Usart.tx(newestCommand[i]);
+            call HplMsp430Usart.tx(newestCommand[i]);
             while (!(call HplMsp430Usart.isTxEmpty())) {
             }
         }
 
-        Resource.release();
-        isSending = false;
-        signal Car.SendDone();
-    }
-
-    error_t SendBytes(uint8_t byte2, uint8_t byte3, uint8_t byte4)
-    {
-        if (isSending) {
-            // return in advance to avoid newestCommand be modified
-            return EBUSY;
-        } else {
-            isSending = true;
-        }
-
-        newestCommand[2] = byte2;
-        newestCommand[3] = byte3;
-        newestCommand[4] = byte4;
-        return call Resource.request();
+        call Resource.release();
+        isSending = FALSE;
+        signal Car.SendDone(SUCCESS, 0);
     }
 }

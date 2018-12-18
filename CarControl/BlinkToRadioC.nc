@@ -6,6 +6,7 @@ module BlinkToRadioC
     uses interface Boot;
     uses interface Packet;
     uses interface AMPacket;
+    uses interface AMSend;
     uses interface Receive;
     uses interface SplitControl as AMControl;
     uses interface Car;
@@ -41,21 +42,21 @@ implementation
             StickStatusMsg* ssMsg = (StickStatusMsg*)payload;
 
             // decode the message
-            nx_uint8_t joyStickX = ssMsg->JoyStickX;
-            nx_uint8_t joyStickY = ssMsg->JoyStickY;
-            nx_uint8_t buttonADown = ssMsg->ButtonADown;
-            nx_uint8_t buttonBDown = ssMsg->ButtonBDown;
-            nx_uint8_t buttonCDown = ssMsg->ButtonCDown;
-            nx_uint8_t buttonDDown = ssMsg->ButtonDDown;
-            nx_uint8_t buttonEDown = ssMsg->ButtonEDown;
-            nx_uint8_t buttonFDown = ssMsg->ButtonFDown;
+            uint8_t joyStickX = ssMsg->JoyStickX;
+            uint8_t joyStickY = ssMsg->JoyStickY;
+            uint8_t buttonADown = ssMsg->ButtonADown;
+            uint8_t buttonBDown = ssMsg->ButtonBDown;
+            uint8_t buttonCDown = ssMsg->ButtonCDown;
+            uint8_t buttonDDown = ssMsg->ButtonDDown;
+            uint8_t buttonEDown = ssMsg->ButtonEDown;
+            uint8_t buttonFDown = ssMsg->ButtonFDown;
 
             // is this a reset command ?
             if (buttonADown && buttonBDown && buttonCDown) {
-                Car.Pause();
-                Car.Angle1(InitAngle1);
-                Car.Angle2(InitAngle2);
-                Car.Angle3(InitAngle3);
+                call Car.Pause();
+                call Car.Angle1(InitAngle1);
+                call Car.Angle2(InitAngle2);
+                call Car.Angle3(InitAngle3);
 
                 return msg;
             }
@@ -63,18 +64,18 @@ implementation
             // decode joyStick for movement status
             if (joyStickX > 0x600 && joyStickX < 0xA00 && joyStickY > 0x600 && joyStickY < 0x800) {
                 // almost center of the joystick, do nothing
-                Car.Pause();
+                call Car.Pause();
             } else if (joyStickX < 0x600 && joyStickY > joyStickX && joyStickY + joyStickX < 0x1000) {
-                Car.Forward(500);
+                call Car.Forward(500);
             } else if (joyStickX > 0xA00 && joyStickX > joyStickY && joyStickY + joyStickX > 0x1000) {
-                Car.Back(500);
+                call Car.Back(500);
             } else if (joyStickY < 0x600 && joyStickX > joyStickY && joyStickX + joyStickY < 0x1000) {
-                Car.Left(500);
+                call Car.Left(500);
             } else if (joyStickY > 0xA00 && joyStickY > joyStickX && joyStickX + joyStickY > 0x1000) {
-                Car.Right(500);
+                call Car.Right(500);
             } else {
                 // other cases, fallback to pause
-                Car.Pause();
+                call Car.Pause();
             }
 
             // decode buttons for rotation status
@@ -87,7 +88,7 @@ implementation
 
                 Angle1 = Angle1 > AngleMax ? Angle1 : AngleMax;
                 Angle1 = Angle1 < AngleMin ? Angle1 : AngleMin;
-                Car.Angle1(Angle1);
+                call Car.Angle1(Angle1);
             }
             if (buttonCDown ^ buttonDDown) {
                 if (buttonCDown) {
@@ -98,7 +99,7 @@ implementation
 
                 Angle2 = Angle2 > AngleMax ? Angle2 : AngleMax;
                 Angle2 = Angle2 < AngleMin ? Angle2 : AngleMin;
-                Car.Angle2(Angle2);
+                call Car.Angle2(Angle2);
             }
             if (buttonEDown ^ buttonFDown) {
                 if (buttonEDown) {
@@ -109,9 +110,22 @@ implementation
 
                 Angle3 = Angle3 > AngleMax ? Angle3 : AngleMax;
                 Angle3 = Angle3 < AngleMin ? Angle3 : AngleMin;
-                Car.Angle3(Angle3);
+                call Car.Angle3(Angle3);
             }
         }
         return msg;
     }
+
+    
+    event void Car.SendDone(error_t state, uint16_t data)
+    {
+        // nothing
+    }
+
+ event void AMControl.stopDone(error_t err){
+     // nothing
+ }
+
+ event void AMSend.sendDone(message_t * msg, error_t err)
+ {}
 }
