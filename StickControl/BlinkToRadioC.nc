@@ -66,14 +66,37 @@ implementation
 
     void SendMessage()
     {
-        ssMsg->JoyStickX = joyStickX;
-        ssMsg->JoyStickY = joyStickY;
+        uint8_t ledMask = 0;
+        ssMsg->JoyStickX = 0;
+        ssMsg->JoyStickY = 0;
         ssMsg->ButtonADown = buttonADown;
         ssMsg->ButtonBDown = buttonBDown;
         ssMsg->ButtonCDown = buttonCDown;
         ssMsg->ButtonDDown = buttonDDown;
         ssMsg->ButtonEDown = buttonEDown;
         ssMsg->ButtonFDown = buttonFDown;
+
+        if (joyStickX > 0x600 && joyStickX < 0xA00 && joyStickY > 0x600 && joyStickY < 0x800) {
+            // almost center of the joystick, do nothing
+        } else if (joyStickX < 0x600 && joyStickY > joyStickX && joyStickY + joyStickX < 0x1000) {
+            ssMsg->JoyStickX = 1;
+            ledMask |= LEDS_LED0;
+        } else if (joyStickX > 0xA00 && joyStickX > joyStickY && joyStickY + joyStickX > 0x1000) {
+            ssMsg->JoyStickX = 2;
+            ledMask |= LEDS_LED0;
+        } else if (joyStickY < 0x600 && joyStickX > joyStickY && joyStickX + joyStickY < 0x1000) {
+            ssMsg->JoyStickY = 1;
+            ledMask |= LEDS_LED1;
+        } else if (joyStickY > 0xA00 && joyStickY > joyStickX && joyStickX + joyStickY > 0x1000) {
+            ssMsg->JoyStickY = 2;
+            ledMask |= LEDS_LED1;
+        }
+
+        if((buttonADown ^ buttonBDown) || (buttonCDown ^ buttonDDown) || (buttonEDown ^ buttonFDown)) {
+            ledMask |= LEDS_LED2;
+        }
+
+        call Leds.set(ledMask);
 
         call AMSend.send(AM_BROADCAST_ADDR, &pkt, sizeof(StickStatusMsg));
     }

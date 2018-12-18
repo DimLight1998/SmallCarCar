@@ -14,6 +14,7 @@ implementation
     components new AMSenderC(AM_BLINKTORADIO);
     components ButtonC;
     components StickC;
+    components LedsC;
 
     App.Boot->MainC;
     App.Timer0->Timer0;
@@ -24,4 +25,5 @@ implementation
     App.Button->ButtonC;
     App.ReadStickX->StickC.ReadStickX;
     App.ReadStickY->StickC.ReadStickY;
+    App.Leds->LedsC;
 }

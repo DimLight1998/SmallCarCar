@@ -12,9 +12,11 @@ implementation
     components ActiveMessageC;   
     components new AMReceiverC(AM_BLINKTORADIO);
     components CarC;
+    components LedsC;
 
     App.Boot->MainC;
     App.AMControl->ActiveMessageC;
     App.Receive->AMReceiverC;
     App.Car->CarC.Car;
+    App.Leds->LedsC;
 }

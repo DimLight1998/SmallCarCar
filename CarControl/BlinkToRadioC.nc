@@ -7,6 +7,7 @@ module BlinkToRadioC
     uses interface Receive;
     uses interface SplitControl as AMControl;
     uses interface Car;
+    uses interface Leds;
 }
 
 implementation
@@ -48,6 +49,8 @@ implementation
             uint8_t buttonEDown = ssMsg->ButtonEDown;
             uint8_t buttonFDown = ssMsg->ButtonFDown;
 
+            uint8_t ledMask = 0;
+
             // is this a reset command ?
             if (buttonADown && buttonBDown && buttonCDown) {
                 call Car.Pause();
@@ -59,17 +62,18 @@ implementation
             }
 
             // decode joyStick for movement status
-            if (joyStickX > 0x600 && joyStickX < 0xA00 && joyStickY > 0x600 && joyStickY < 0x800) {
-                // almost center of the joystick, do nothing
-                call Car.Pause();
-            } else if (joyStickX < 0x600 && joyStickY > joyStickX && joyStickY + joyStickX < 0x1000) {
+            if (joyStickX == 1) {
                 call Car.Forward(500);
-            } else if (joyStickX > 0xA00 && joyStickX > joyStickY && joyStickY + joyStickX > 0x1000) {
+                ledMask |= LEDS_LED0;
+            } else if (joyStickX == 2) {
                 call Car.Back(500);
-            } else if (joyStickY < 0x600 && joyStickX > joyStickY && joyStickX + joyStickY < 0x1000) {
+                ledMask |= LEDS_LED0;
+            } else if (joyStickY == 1) {
                 call Car.Left(500);
-            } else if (joyStickY > 0xA00 && joyStickY > joyStickX && joyStickX + joyStickY > 0x1000) {
+                ledMask |= LEDS_LED1;
+            } else if (joyStickY == 2) {
                 call Car.Right(500);
+                ledMask |= LEDS_LED1;
             } else {
                 // other cases, fallback to pause
                 call Car.Pause();
@@ -86,6 +90,7 @@ implementation
                 Angle1 = Angle1 > AngleMax ? Angle1 : AngleMax;
                 Angle1 = Angle1 < AngleMin ? Angle1 : AngleMin;
                 call Car.Angle1(Angle1);
+                ledMask |= LEDS_LED2;
             }
             if (buttonCDown ^ buttonDDown) {
                 if (buttonCDown) {
@@ -97,6 +102,7 @@ implementation
                 Angle2 = Angle2 > AngleMax ? Angle2 : AngleMax;
                 Angle2 = Angle2 < AngleMin ? Angle2 : AngleMin;
                 call Car.Angle2(Angle2);
+                ledMask |= LEDS_LED2;
             }
             if (buttonEDown ^ buttonFDown) {
                 if (buttonEDown) {
@@ -108,7 +114,9 @@ implementation
                 Angle3 = Angle3 > AngleMax ? Angle3 : AngleMax;
                 Angle3 = Angle3 < AngleMin ? Angle3 : AngleMin;
                 call Car.Angle3(Angle3);
+                ledMask |= LEDS_LED2;
             }
+            call Leds.set(ledMask);
         }
         return msg;
     }
