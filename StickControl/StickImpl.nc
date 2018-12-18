@@ -1,4 +1,4 @@
-module StickP
+module StickImpl
 {
     provides interface AdcConfigure<const msp430adc12_channel_config_t*> as ConfigureX;
     provides interface AdcConfigure<const msp430adc12_channel_config_t*> as ConfigureY;

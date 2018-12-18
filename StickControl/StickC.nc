@@ -8,13 +8,13 @@ configuration StickC
 
 implementation
 {
-    components StickP;
+    components StickImpl;
     components new AdcReadClientC() as ClientX;
     components new AdcReadClientC() as ClientY;
 
     ReadStickX = ClientX.Read;
     ReadStickY = ClientY.Read;
 
-    ClientX.AdcConfigure->StickP.ConfigureX;
-    ClientY.AdcConfigure->StickP.ConfigureY;
+    ClientX.AdcConfigure->StickImpl.ConfigureX;
+    ClientY.AdcConfigure->StickImpl.ConfigureY;
 }

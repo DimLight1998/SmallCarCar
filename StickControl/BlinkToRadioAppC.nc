@@ -21,7 +21,7 @@ implementation
     App.AMPacket->AMSenderC;
     App.AMControl->ActiveMessageC;
     App.AMSend->AMSenderC;
-    App.Button->ButtonC.Button;
+    App.Button->ButtonC;
     App.ReadStickX->StickC.ReadStickX;
     App.ReadStickY->StickC.ReadStickY;
 }
