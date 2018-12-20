@@ -111,16 +111,16 @@ implementation
 
             // decode joyStick for movement status
             if (joyStickX == 1) {
-                call Car.Forward(500);
+                call Car.Left(500);
                 ledMask |= LEDS_LED0;
             } else if (joyStickX == 2) {
-                call Car.Back(500);
+                call Car.Right(500);
                 ledMask |= LEDS_LED0;
             } else if (joyStickY == 1) {
-                call Car.Left(500);
+                call Car.Forward(500);
                 ledMask |= LEDS_LED1;
             } else if (joyStickY == 2) {
-                call Car.Right(500);
+                call Car.Back(500);
                 ledMask |= LEDS_LED1;
             } else {
                 // other cases, fallback to pause
