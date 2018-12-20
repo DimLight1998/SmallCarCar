@@ -135,8 +135,8 @@ implementation
                     Angle1 = Angle1 - AngleDelta;
                 }
 
-                Angle1 = Angle1 > AngleMax ? Angle1 : AngleMax;
-                Angle1 = Angle1 < AngleMin ? Angle1 : AngleMin;
+                Angle1 = Angle1 < AngleMax ? Angle1 : AngleMax;
+                Angle1 = Angle1 > AngleMin ? Angle1 : AngleMin;
                 call Car.Angle1(Angle1);
                 ledMask |= LEDS_LED2;
             }
@@ -147,8 +147,8 @@ implementation
                     Angle2 = Angle2 - AngleDelta;
                 }
 
-                Angle2 = Angle2 > AngleMax ? Angle2 : AngleMax;
-                Angle2 = Angle2 < AngleMin ? Angle2 : AngleMin;
+                Angle2 = Angle2 < AngleMax ? Angle2 : AngleMax;
+                Angle2 = Angle2 > AngleMin ? Angle2 : AngleMin;
                 call Car.Angle2(Angle2);
                 ledMask |= LEDS_LED2;
             }
@@ -159,8 +159,8 @@ implementation
                     Angle3 = Angle3 - AngleDelta;
                 }
 
-                Angle3 = Angle3 > AngleMax ? Angle3 : AngleMax;
-                Angle3 = Angle3 < AngleMin ? Angle3 : AngleMin;
+                Angle3 = Angle3 < AngleMax ? Angle3 : AngleMax;
+                Angle3 = Angle3 > AngleMin ? Angle3 : AngleMin;
                 call Car.Angle3(Angle3);
                 ledMask |= LEDS_LED2;
             }

@@ -97,7 +97,7 @@ implementation
             ledMask |= LEDS_LED1;
         }
 
-        if((buttonADown ^ buttonBDown) || (buttonCDown ^ buttonDDown) || (buttonEDown ^ buttonFDown)) {
+        if(buttonADown || buttonBDown || buttonCDown || buttonEDown || buttonFDown) {
             ledMask |= LEDS_LED2;
         }
 
