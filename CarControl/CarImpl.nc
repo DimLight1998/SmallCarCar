@@ -79,12 +79,12 @@ implementation
 
     command error_t Car.Left(uint16_t value)
     {
-        return SendBytes(0x04, value >> 8, value & 0xff);
+        return SendBytes(0x05, value >> 8, value & 0xff);
     }
 
     command error_t Car.Right(uint16_t value)
     {
-        return SendBytes(0x05, value >> 8, value & 0xff);
+        return SendBytes(0x04, value >> 8, value & 0xff);
     }
 
     command error_t Car.Pause()

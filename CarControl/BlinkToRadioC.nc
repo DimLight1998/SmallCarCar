@@ -8,6 +8,7 @@ module BlinkToRadioC
     uses interface SplitControl as AMControl;
     uses interface Car;
     uses interface Leds;
+    uses interface Timer<TMilli> as Timer0;
 }
 
 implementation
@@ -24,6 +25,7 @@ implementation
 
     uint16_t AngleMax = 5000;
     uint16_t AngleMin = 1800;
+    uint16_t TimerCount = 0;
 
     event void Boot.booted() { call AMControl.start(); }
 
@@ -31,11 +33,57 @@ implementation
     {
         if (err != SUCCESS) {
             call AMControl.start();
+        } else {
+            call Timer0.startPeriodic(TIMER_DANCE);
         }
+    }
+
+    event void Timer0.fired() {
+        if(TimerCount==0) {
+            call Car.Forward(500);
+            call Leds.set(1);
+        } else if(TimerCount==1) {
+            call Car.Back(500);
+            call Leds.set(2);
+        } else if(TimerCount==2) {
+            call Car.Left(500);
+            call Leds.set(3);
+        } else if(TimerCount==3) {
+            call Car.Right(500);
+            call Leds.set(4);
+        } else if(TimerCount==4) {
+            call Car.Pause();
+        } else if(TimerCount==5) {
+            call Car.Angle1(AngleMin);
+            call Leds.set(5);
+        } else if(TimerCount==6) {
+            call Car.Angle1(AngleMax);
+        } else if(TimerCount==7) {
+            call Car.Angle1(InitAngle1);
+        } else if(TimerCount==8) {
+            call Car.Angle2(AngleMin);
+            call Leds.set(6);
+        } else if(TimerCount==9) {
+            call Car.Angle2(AngleMax);
+        } else if(TimerCount==10) {
+            call Car.Angle2(InitAngle2);
+        } else if(TimerCount==11) {
+            call Car.Angle3(AngleMin);
+            call Leds.set(7);
+        } else if(TimerCount==12) {
+            call Car.Angle3(AngleMax);
+        } else if(TimerCount==13) {
+            call Car.Angle3(InitAngle3);
+        }
+
+        TimerCount++;
     }
 
     event message_t* Receive.receive(message_t * msg, void* payload, uint8_t len)
     {
+        if(TimerCount<=13) {
+          return msg;
+        }
         if (len == sizeof(StickStatusMsg)) {
             StickStatusMsg* ssMsg = (StickStatusMsg*)payload;
 

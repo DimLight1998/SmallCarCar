@@ -13,10 +13,12 @@ implementation
     components new AMReceiverC(AM_BLINKTORADIO);
     components CarC;
     components LedsC;
+    components new TimerMilliC() as Timer0;
 
     App.Boot->MainC;
     App.AMControl->ActiveMessageC;
     App.Receive->AMReceiverC;
     App.Car->CarC.Car;
     App.Leds->LedsC;
+    App.Timer0->Timer0;
 }
