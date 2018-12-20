@@ -108,37 +108,37 @@ implementation
 
     event void Button.getButtonADone(bool High)
     {
-        buttonADown = High ? 1 : 0;
+        buttonADown = High ? 0 : 1;
         call Button.getButtonB();
     }
 
     event void Button.getButtonBDone(bool High)
     {
-        buttonBDown = High ? 1 : 0;
+        buttonBDown = High ? 0 : 1;
         call Button.getButtonC();
     }
 
     event void Button.getButtonCDone(bool High)
     {
-        buttonCDown = High ? 1 : 0;
+        buttonCDown = High ? 0 : 1;
         call Button.getButtonD();
     }
 
     event void Button.getButtonDDone(bool High)
     {
-        buttonDDown = High ? 1 : 0;
+        buttonDDown = High ? 0 : 1;
         call Button.getButtonE();
     }
 
     event void Button.getButtonEDone(bool High)
     {
-        buttonEDown = High ? 1 : 0;
+        buttonEDown = High ? 0 : 1;
         call Button.getButtonF();
     }
 
     event void Button.getButtonFDone(bool High)
     {
-        buttonFDown = High ? 1 : 0;
+        buttonFDown = High ? 0 : 1;
         call ReadStickX.read();
     }
 
