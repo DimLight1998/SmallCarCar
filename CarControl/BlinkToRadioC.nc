@@ -26,6 +26,8 @@ implementation
     uint16_t AngleMax = 5000;
     uint16_t AngleMin = 1800;
     uint16_t TimerCount = 0;
+    uint16_t ResetCount = -1;
+    bool Moving = FALSE;
 
     event void Boot.booted() { call AMControl.start(); }
 
@@ -76,12 +78,30 @@ implementation
             call Car.Angle3(InitAngle3);
         }
 
-        TimerCount++;
+        if(ResetCount==0) {
+            Angle1=InitAngle1;
+            call Car.Angle1(InitAngle1);
+        } else if(ResetCount==1) {
+            Angle2=InitAngle2;
+            call Car.Angle2(InitAngle2);
+        } else if(ResetCount==2) {
+            Angle3=InitAngle3;
+            call Car.Angle3(InitAngle3);
+            ResetCount = -1;
+        }
+
+        if(ResetCount!=-1) {
+            ResetCount++;
+        }
+
+        if(TimerCount<=13) {
+            TimerCount++;
+        }
     }
 
     event message_t* Receive.receive(message_t * msg, void* payload, uint8_t len)
     {
-        if(TimerCount<=13) {
+        if(TimerCount<=13||ResetCount!=-1) {
           return msg;
         }
         if (len == sizeof(StickStatusMsg)) {
@@ -93,7 +113,7 @@ implementation
             uint8_t buttonADown = ssMsg->ButtonADown;
             uint8_t buttonBDown = ssMsg->ButtonBDown;
             uint8_t buttonCDown = ssMsg->ButtonCDown;
-            uint8_t buttonDDown = ssMsg->ButtonDDown;
+            // uint8_t buttonDDown = ssMsg->ButtonDDown;
             uint8_t buttonEDown = ssMsg->ButtonEDown;
             uint8_t buttonFDown = ssMsg->ButtonFDown;
 
@@ -101,11 +121,7 @@ implementation
 
             // is this a reset command ?
             if (buttonFDown) {
-                call Car.Pause();
-                call Car.Angle1(InitAngle1);
-                call Car.Angle2(InitAngle2);
-                call Car.Angle3(InitAngle3);
-
+                ResetCount = 0;
                 ledMask |= LEDS_LED2;
                 call Leds.set(ledMask);
                 return msg;
@@ -115,18 +131,25 @@ implementation
             if (joyStickX == 1) {
                 call Car.Right(500);
                 ledMask |= LEDS_LED0;
+                Moving = TRUE;
             } else if (joyStickX == 2) {
                 call Car.Left(500);
                 ledMask |= LEDS_LED0;
+                Moving = TRUE;
             } else if (joyStickY == 1) {
                 call Car.Forward(500);
                 ledMask |= LEDS_LED1;
+                Moving = TRUE;
             } else if (joyStickY == 2) {
                 call Car.Back(500);
                 ledMask |= LEDS_LED1;
+                Moving = TRUE;
             } else {
                 // other cases, fallback to pause
-                call Car.Pause();
+                if(Moving) {
+                    call Car.Pause();
+                    Moving = FALSE;
+                }
             }
 
             // decode buttons for rotation status
