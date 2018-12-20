@@ -1,5 +1,7 @@
+#define NEW_PRINTF_SEMANTICS
 #include "../common.h"
 #include <Timer.h>
+#include "printf.h"
 
 configuration BlinkToRadioAppC
 {
@@ -15,6 +17,8 @@ implementation
     components ButtonC;
     components StickC;
     components LedsC;
+    components PrintfC;
+    components SerialStartC;
 
     App.Boot->MainC;
     App.Timer0->Timer0;

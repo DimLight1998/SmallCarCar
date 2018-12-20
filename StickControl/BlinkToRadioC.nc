@@ -1,5 +1,6 @@
 #include "../common.h"
 #include <Timer.h>
+#include "printf.h"
 
 module BlinkToRadioC
 {
@@ -21,18 +22,19 @@ implementation
     bool busy = FALSE;
     StickStatusMsg* ssMsg = NULL;
 
-    nx_uint8_t joyStickX;
-    nx_uint8_t joyStickY;
-    nx_uint8_t buttonADown;
-    nx_uint8_t buttonBDown;
-    nx_uint8_t buttonCDown;
-    nx_uint8_t buttonDDown;
-    nx_uint8_t buttonEDown;
-    nx_uint8_t buttonFDown;
+    uint16_t joyStickX;
+    uint16_t joyStickY;
+    uint16_t buttonADown;
+    uint16_t buttonBDown;
+    uint16_t buttonCDown;
+    uint16_t buttonDDown;
+    uint16_t buttonEDown;
+    uint16_t buttonFDown;
 
     event void Boot.booted()
     {
         call AMControl.start();
+        call Button.begin();
     }
 
     event void AMControl.startDone(error_t err)
@@ -75,6 +77,9 @@ implementation
         ssMsg->ButtonDDown = buttonDDown;
         ssMsg->ButtonEDown = buttonEDown;
         ssMsg->ButtonFDown = buttonFDown;
+
+        printf("%u %u %u %u %u %u\n", buttonADown, buttonBDown, buttonCDown, buttonDDown, buttonEDown, buttonFDown);
+        printfflush();
 
         if (joyStickX > 0x600 && joyStickX < 0xA00 && joyStickY > 0x600 && joyStickY < 0x800) {
             // almost center of the joystick, do nothing
