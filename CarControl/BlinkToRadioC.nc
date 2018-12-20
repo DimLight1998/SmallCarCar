@@ -100,21 +100,23 @@ implementation
             uint8_t ledMask = 0;
 
             // is this a reset command ?
-            if (buttonADown && buttonBDown && buttonCDown) {
+            if (buttonFDown) {
                 call Car.Pause();
                 call Car.Angle1(InitAngle1);
                 call Car.Angle2(InitAngle2);
                 call Car.Angle3(InitAngle3);
 
+                ledMask |= LEDS_LED2;
+                call Leds.set(ledMask);
                 return msg;
             }
 
             // decode joyStick for movement status
             if (joyStickX == 1) {
-                call Car.Left(500);
+                call Car.Right(500);
                 ledMask |= LEDS_LED0;
             } else if (joyStickX == 2) {
-                call Car.Right(500);
+                call Car.Left(500);
                 ledMask |= LEDS_LED0;
             } else if (joyStickY == 1) {
                 call Car.Forward(500);
@@ -128,41 +130,41 @@ implementation
             }
 
             // decode buttons for rotation status
-            if (buttonADown ^ buttonBDown) {
+            if(buttonCDown ^ buttonEDown) {
                 if (buttonADown) {
-                    Angle1 = Angle1 + AngleDelta;
-                } else {
-                    Angle1 = Angle1 - AngleDelta;
-                }
+                    if (buttonEDown) {
+                        Angle2 = Angle2 + AngleDelta;
+                    } else {
+                        Angle2 = Angle2 - AngleDelta;
+                    }
 
-                Angle1 = Angle1 < AngleMax ? Angle1 : AngleMax;
-                Angle1 = Angle1 > AngleMin ? Angle1 : AngleMin;
-                call Car.Angle1(Angle1);
-                ledMask |= LEDS_LED2;
-            }
-            if (buttonCDown ^ buttonDDown) {
-                if (buttonCDown) {
-                    Angle2 = Angle2 + AngleDelta;
-                } else {
-                    Angle2 = Angle2 - AngleDelta;
-                }
+                    Angle2 = Angle2 < AngleMax ? Angle2 : AngleMax;
+                    Angle2 = Angle2 > AngleMin ? Angle2 : AngleMin;
+                    call Car.Angle2(Angle2);
+                    ledMask |= LEDS_LED2;
+                } else if(buttonBDown) {
+                    if (buttonEDown) {
+                        Angle3 = Angle3 + AngleDelta;
+                    } else {
+                        Angle3 = Angle3 - AngleDelta;
+                    }
 
-                Angle2 = Angle2 < AngleMax ? Angle2 : AngleMax;
-                Angle2 = Angle2 > AngleMin ? Angle2 : AngleMin;
-                call Car.Angle2(Angle2);
-                ledMask |= LEDS_LED2;
-            }
-            if (buttonEDown ^ buttonFDown) {
-                if (buttonEDown) {
-                    Angle3 = Angle3 + AngleDelta;
+                    Angle3 = Angle3 < AngleMax ? Angle3 : AngleMax;
+                    Angle3 = Angle3 > AngleMin ? Angle3 : AngleMin;
+                    call Car.Angle3(Angle3);
+                    ledMask |= LEDS_LED2;
                 } else {
-                    Angle3 = Angle3 - AngleDelta;
-                }
+                    if (buttonEDown) {
+                        Angle1 = Angle1 + AngleDelta;
+                    } else {
+                        Angle1 = Angle1 - AngleDelta;
+                    }
 
-                Angle3 = Angle3 < AngleMax ? Angle3 : AngleMax;
-                Angle3 = Angle3 > AngleMin ? Angle3 : AngleMin;
-                call Car.Angle3(Angle3);
-                ledMask |= LEDS_LED2;
+                    Angle1 = Angle1 < AngleMax ? Angle1 : AngleMax;
+                    Angle1 = Angle1 > AngleMin ? Angle1 : AngleMin;
+                    call Car.Angle1(Angle1);
+                    ledMask |= LEDS_LED2;
+                }
             }
             call Leds.set(ledMask);
         }
