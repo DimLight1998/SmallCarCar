@@ -9,6 +9,7 @@ module BlinkToRadioC
     uses interface Car;
     uses interface Leds;
     uses interface Timer<TMilli> as Timer0;
+    uses interface Timer<TMilli> as Timer1;
     uses interface Read<uint16_t> as ReadLight;
 }
 
@@ -29,7 +30,8 @@ implementation
     uint16_t TimerCount = 0;
     uint16_t ResetCount = -1;
     bool Moving = FALSE;
-    uint16_t LightValue = 0; // todo set max light value as init
+    float LightValue = 0;
+    bool busy=FALSE;
 
     event void Boot.booted() { call AMControl.start(); }
 
@@ -39,6 +41,7 @@ implementation
             call AMControl.start();
         } else {
             call Timer0.startPeriodic(TIMER_DANCE);
+            call Timer1.startPeriodic(TIMER_PERIOD_MILLI);
         }
     }
 
@@ -99,7 +102,13 @@ implementation
         if(TimerCount<=13) {
             TimerCount++;
         }
+    }
 
+    event void Timer1.fired() {
+        if(busy) {
+          return;
+        }
+        busy=TRUE;
         call ReadLight.read();
     }
 
@@ -123,6 +132,11 @@ implementation
 
             uint8_t ledMask = 0;
             uint16_t speed=500;
+            if(LightValue>BRIGHT_THRES) {
+              speed=700;
+            } else if(LightValue<DARK_THRES) {
+              speed=200;
+            }
 
             // is this a reset command ?
             if (buttonFDown) {
@@ -132,9 +146,6 @@ implementation
                 return msg;
             }
 
-            if(LightValue<LIGHT_THRESHOLD) {
-                speed=100;
-            }
             // decode joyStick for movement status
             if (joyStickX == 1) {
                 call Car.Right(speed);
@@ -214,7 +225,8 @@ implementation
 
     event void ReadLight.readDone(error_t err,uint16_t val) {
         if(err == SUCCESS) {
-            LightValue = val;
+            LightValue = (LightValue+val)/2;
+            busy=FALSE;
         } else {
             call ReadLight.read();
         }
