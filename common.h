@@ -5,7 +5,9 @@ enum
 {
     AM_BLINKTORADIO = 6,
     TIMER_PERIOD_MILLI = 100,
-    TIMER_DANCE = 1000
+    TIMER_DANCE = 1000,
+    DARK_THRES = 10,
+    BRIGHT_THRES = 500
 };
 
 typedef nx_struct StickStatusMsg {

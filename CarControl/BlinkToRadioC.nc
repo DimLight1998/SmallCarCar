@@ -9,6 +9,8 @@ module BlinkToRadioC
     uses interface Car;
     uses interface Leds;
     uses interface Timer<TMilli> as Timer0;
+    uses interface Timer<TMilli> as Timer1;
+    uses interface Read<uint16_t> as ReadLight;
 }
 
 implementation
@@ -28,6 +30,8 @@ implementation
     uint16_t TimerCount = 0;
     uint16_t ResetCount = -1;
     bool Moving = FALSE;
+    float LightValue = 0;
+    bool busy=FALSE;
 
     event void Boot.booted() { call AMControl.start(); }
 
@@ -37,6 +41,7 @@ implementation
             call AMControl.start();
         } else {
             call Timer0.startPeriodic(TIMER_DANCE);
+            call Timer1.startPeriodic(TIMER_PERIOD_MILLI);
         }
     }
 
@@ -99,6 +104,14 @@ implementation
         }
     }
 
+    event void Timer1.fired() {
+        if(busy) {
+          return;
+        }
+        busy=TRUE;
+        call ReadLight.read();
+    }
+
     event message_t* Receive.receive(message_t * msg, void* payload, uint8_t len)
     {
         if(TimerCount<=13||ResetCount!=-1) {
@@ -118,6 +131,12 @@ implementation
             uint8_t buttonFDown = ssMsg->ButtonFDown;
 
             uint8_t ledMask = 0;
+            uint16_t speed=500;
+            if(LightValue>BRIGHT_THRES) {
+              speed=700;
+            } else if(LightValue<DARK_THRES) {
+              speed=200;
+            }
 
             // is this a reset command ?
             if (buttonFDown) {
@@ -129,19 +148,19 @@ implementation
 
             // decode joyStick for movement status
             if (joyStickX == 1) {
-                call Car.Right(500);
+                call Car.Right(speed);
                 ledMask |= LEDS_LED0;
                 Moving = TRUE;
             } else if (joyStickX == 2) {
-                call Car.Left(500);
+                call Car.Left(speed);
                 ledMask |= LEDS_LED0;
                 Moving = TRUE;
             } else if (joyStickY == 1) {
-                call Car.Forward(500);
+                call Car.Forward(speed);
                 ledMask |= LEDS_LED1;
                 Moving = TRUE;
             } else if (joyStickY == 2) {
-                call Car.Back(500);
+                call Car.Back(speed);
                 ledMask |= LEDS_LED1;
                 Moving = TRUE;
             } else {
@@ -200,7 +219,16 @@ implementation
         // nothing
     }
 
- event void AMControl.stopDone(error_t err){
-     // nothing
- }
+    event void AMControl.stopDone(error_t err){
+        // nothing
+    }
+
+    event void ReadLight.readDone(error_t err,uint16_t val) {
+        if(err == SUCCESS) {
+            LightValue = (LightValue+val)/2;
+            busy=FALSE;
+        } else {
+            call ReadLight.read();
+        }
+    }
 }

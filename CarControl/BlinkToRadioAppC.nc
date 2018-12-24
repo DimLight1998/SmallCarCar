@@ -14,6 +14,8 @@ implementation
     components CarC;
     components LedsC;
     components new TimerMilliC() as Timer0;
+    components new TimerMilliC() as Timer1;
+    components new HamamatsuS1087ParC() as LightSensor;
 
     App.Boot->MainC;
     App.AMControl->ActiveMessageC;
@@ -21,4 +23,6 @@ implementation
     App.Car->CarC.Car;
     App.Leds->LedsC;
     App.Timer0->Timer0;
+    App.Timer1->Timer1;
+    App.ReadLight->LightSensor;
 }
